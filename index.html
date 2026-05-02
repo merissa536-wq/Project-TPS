@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TPS POS System</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+h1 { color: #333; }
+select, input, button { margin: 10px; padding: 8px; }
+table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+th { background: #f2f2f2; }
+</style>
+</head>
+
+<body>
+
+<h1>🛒 TPS Point of Sale System</h1>
+
+<!-- Item Selection -->
+<select id="item">
+<option value="Rice" data-price="500">Rice - $500</option>
+<option value="Sugar" data-price="300">Sugar - $300</option>
+<option value="Milk" data-price="250">Milk - $250</option>
+</select>
+
+<input type="number" id="qty" placeholder="Quantity" min="1">
+
+<button onclick="addItem()">Add Item</button>
+
+<!-- Cart Table -->
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Price</th>
+<th>Quantity</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="cart"></tbody>
+</table>
+
+<h3 id="grandTotal">Grand Total: $0</h3>
+
+<button onclick="submitSale()">✅ Submit Sale</button>
+
+<h3 id="report"></h3>
+
+<script>
+let cart = [];
+let total = 0;
+let transactions = 0;
+
+function addItem() {
+let itemSelect = document.getElementById("item");
+let name = itemSelect.value;
+let price = parseInt(itemSelect.options[itemSelect.selectedIndex].dataset.price);
+let qty = parseInt(document.getElementById("qty").value);
+
+if (!qty || qty <= 0) {
+alert("Enter valid quantity");
+return;
+}
+
+let itemTotal = price * qty;
+
+cart.push({ name, price, qty, itemTotal });
+
+total += itemTotal;
+
+displayCart();
+}
+
+function displayCart() {
+let cartTable = document.getElementById("cart");
+cartTable.innerHTML = "";
+
+cart.forEach(item => {
+cartTable.innerHTML += `
+<tr>
+<td>${item.name}</td>
+<td>$${item.price}</td>
+<td>${item.qty}</td>
+<td>$${item.itemTotal}</td>
+</tr>
+`;
+});
+
+document.getElementById("grandTotal").innerText = "Grand Total: $" + total;
+}
+
+function submitSale() {
+if (cart.length === 0) {
+alert("Cart is empty");
+return;
+}
+
+let now = new Date();
+
+cart.forEach(item => {
+let data = {
+time: now.toLocaleString(),
+itemCode: Math.floor(Math.random() * 1000),
+itemName: item.name,
+quantity: item.qty,
+price: item.price,
+total: item.itemTotal
+};
+
+fetch("https://script.google.com/macros/s/AKfycbxDBiL6azBCQ6BfKUzEmE13pBGFS5EY-mefwY48XMXEQqdc9FFeTeVNkZl-uwH1Bqcj/exec", {
+method: "POST",
+body: JSON.stringify(data)
+});
+});
+
+transactions++;
+
+document.getElementById("report").innerText =
+"📊 Transactions today: " + transactions + " | Sales: $" + total;
+
+alert("Sale submitted!");
+
+cart = [];
+total = 0;
+displayCart();
+}
+</script>
+
+</body>
+</html>
